@@ -1,0 +1,54 @@
+Hypervisor:
+    Software managing virtual machines
+    Handles communication between guest and host / hardware
+
+    Type 1 bare-metal
+        Hypervisor is the "root" sitting on the hardware.
+        Calls the hardware directly with no host OS.
+
+        ex. Virtual private servers
+
+            Guest <-> Hypervisor <-> Hardware
+
+        Bare metal as in the hypervisor is bare metal
+        NOT the same as bare metal servers i.e. Vultr Bare metal / Hetzner dedicated (No hypervisor)
+
+    Type 2 hosted
+        Hypervisor sits between the gues and host OS'
+
+        ex. Virtual machines
+
+            Guest <-> Hypervisor <-> Host OS <-> Hardware
+
+Virtualization:
+    Full virtualization:
+        Hypervisor "pretends" to be hardware
+        Guest system doesn't know it's virtualized.
+
+    Hardware-assisted virtualization:
+         Hardware accelerated virtualization using instructions of modern CPU architectures.
+
+    Paravirtualization:
+        Guest knows it is virtualized and communicates directly with hypervisor 
+        Typically faster than full virtualization. 
+        Uses specialized drivers
+        partially obsolete in favor of hardware assisted virtualization
+
+    OS-Level virtualization (containerization)
+        Don't require hypervisors (unless host kernel is incompatible with guest)
+            i.e. linux containers on windows
+        Shared kernel space with host, Isolated user space
+        docker, podman
+
+    Emulation
+        Entire hardware simulated in host OS user space software.
+        Slow, mainly used to simulated old or weaker architectures
+        Dosbox, console emulators
+
+
+
+Side channel attacks:
+    Attacker can inferr information from "metadata"
+    Leaked shared caches
+    timings of shared resources
+

@@ -1,0 +1,60 @@
+Attack surface:
+    Digital:
+        Malware
+        open network ports
+        exploits
+        supply chain
+
+    Physical:
+        Devices (computers, phones, IoT)
+        Physical access points (Ethernet / usb ports)
+        Physical access to computers / servers
+
+    Human:
+        Weak passwords
+        Phising
+        Insider threats (Bribes / extortion)
+        Wrench attack
+
+
+History of attacks
+    Creeper / Reaper (1971)
+        First worm and antivirus
+        
+    Morris (1988)
+         worm
+         First conviction under computer fraud and abuse act
+         Exploit in finger and sendmail
+         guessed weak or missing passwords
+
+    Citibank heist (1994)
+        ??? 
+
+    Melissa (1999)
+        "Enticing" email with word file attachment
+        autoran macro when word file oppened infecting user
+
+    Aurora generator test (2009)
+        White hat test targeting industrial equipment
+        blew up a diesel generator (cool)
+        
+    stuxnet / Operation olympic games (~2009)
+        Israel and United States operation targeting Iranian nuclear refinement facilities.
+        Worm spread only activating payload when detecting industrial control systems related linked to nuclear refinement centrifuges 
+
+    Ukranian power grid (2015)
+        First publicly acknowledged successful cyberattack on a power grid
+        Russian threat group (Sandworm / Seashell blizzard) 
+
+    Mirai botnet (2016)
+        linux based IoT & router botnet
+        Initally used to extort minecraft server hosts to cease DDOS attacks
+        Escelated to knocking out github, twitter, reddit, netflix ...
+
+        brute forced known factory passwords / weak defaults
+
+
+
+
+
+

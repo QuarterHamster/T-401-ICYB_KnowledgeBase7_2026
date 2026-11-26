@@ -1,0 +1,992 @@
+# Lecture 3 — Command Line Interface (CLI)
+
+**Course:** T-401-ICYB — Introduction to Cyber Security  
+**Lecture date:** 25 November 2026  
+**Lecturer:** Stephan Schiffel  
+**Topic:** Command Line Interface (CLI)
+
+---
+
+## 1. Learning Objectives
+
+After this lecture, we should be able to:
+
+- Explain why command-line interfaces are useful.
+- Identify common shells, including Bash, Zsh, CMD, PowerShell, and WSL.
+- Navigate directories and manage files using command-line commands.
+- Read, search, filter, and process text.
+- Use pipes, redirection, and command chaining.
+- Understand the difference between globs and regular expressions.
+- Explain Bash quoting, variable expansion, and command substitution.
+- Write simple Bash loops, functions, and scripts.
+- Explain how PowerShell differs from Bash.
+- Recognize command-line security vulnerabilities and describe their mitigations.
+
+---
+
+# 2. Why Use the Command Line?
+
+A Command Line Interface (CLI) allows a user to interact with a computer by entering text commands instead of using a graphical user interface (GUI).
+
+### Advantages
+
+- **Composable:** Small tools can be combined using pipes.
+- **Complete:** Commands often expose options not available in graphical interfaces.
+- **Repeatable:** Scripts can perform tasks consistently.
+- **Remote administration:** Servers can be managed through SSH.
+- **Automation:** Repetitive tasks can be performed using scripts.
+- **Stable:** Many Unix command-line tools and conventions have existed for decades.
+
+### Historical development
+
+- **1950s:** Batch processing using punched cards.
+- **1960s–1980s:** Terminals and time-sharing systems; Unix introduced the shell and command-line tools.
+- **1980s–1990s:** Graphical interfaces became widely popular on desktop computers.
+- **2000s–present:** CLI usage expanded again because servers, cloud infrastructure and remote systems frequently operate without graphical interfaces.
+
+**Headless server:** A computer/server that operates without a graphical user interface.
+
+---
+
+# 3. Different Shells
+
+A shell is a program that interprets commands and allows the user to interact with the operating system.
+
+| Shell | Operating System / Environment | Description |
+|---|---|---|
+| Bash | Linux, Unix, WSL | Common shell with scripting support |
+| Zsh | macOS, Linux | Similar to Bash with additional customization |
+| PowerShell | Windows, Linux, macOS | Administration shell using object-based pipelines |
+| CMD | Windows | Older Windows command shell |
+| WSL | Windows | Runs Linux environments and shells inside Windows |
+
+Cloud command-line tools such as `aws` and `az`, and language interpreters such as Python and Node.js, are not themselves shells.
+
+---
+
+# 4. Navigation and File Manipulation
+
+| Command | Purpose | Example |
+|---|---|---|
+| `pwd` | Show current directory | `pwd` |
+| `ls` | List files | `ls` |
+| `ls -a` | Show hidden files | `ls -a` |
+| `cd` | Change directory | `cd Documents` |
+| `touch` | Create file | `touch test.txt` |
+| `cp` | Copy files | `cp a.txt b.txt` |
+| `mv` | Move or rename | `mv old.txt new.txt` |
+| `rm` | Delete file | `rm test.txt` |
+| `man` | Display manual | `man grep` |
+| `history` | Show command history | `history` |
+
+### Useful shortcuts
+
+- `TAB` — autocomplete commands or filenames.
+- `CTRL + R` — search backwards through command history.
+
+### Important warning
+
+`rm -rf` performs recursive, forceful deletion. It can remove files and directories without prompting. Carefully check the path and command before executing it.
+
+---
+
+# 5. Reading and Searching Files
+
+| Command | Purpose | Example |
+|---|---|---|
+| `cat` | Display file contents | `cat file.txt` |
+| `less` | Read file page by page | `less file.txt` |
+| `head` | Display first lines | `head -n 10 file.txt` |
+| `tail` | Display last lines | `tail -n 10 file.txt` |
+| `tail -f` | Follow a live log | `tail -f log.txt` |
+| `grep` | Search text | `grep "Error" log.txt` |
+| `grep -R` | Search recursively | `grep -R "Error" .` |
+| `find` | Search for files | `find . -name '*.txt'` |
+
+### `find` examples
+
+Search for temporary files:
+
+```bash
+find . -name '*.tmp' -type f
+```
+
+Limit search depth:
+
+```bash
+find . -maxdepth 2 -name '*.log'
+```
+
+Search recursively from the current directory for files with the `.conf` extension:
+
+```bash
+find . -name '*.conf' -type f
+```
+
+The pattern should be quoted so the shell does not expand it before `find` receives it.
+
+### `grep` examples
+
+Search a file:
+
+```bash
+grep "Error" log.txt
+```
+
+Search recursively:
+
+```bash
+grep -R "password" .
+```
+
+`grep` prints matching lines. Recursive searching should be used carefully when searching directories containing sensitive information.
+
+---
+
+# 6. Pipes and Redirection
+
+## 6.1 Pipes
+
+A pipe (`|`) connects the standard output (stdout) of one command to the standard input (stdin) of another command.
+
+```bash
+command1 | command2
+```
+
+Example:
+
+```bash
+ls | grep ".txt$"
+```
+
+- `ls` lists files.
+- The pipe sends the output to `grep`.
+- `grep` filters the lines that match the pattern.
+
+Pipes allow programs to work together without needing intermediate files.
+
+## 6.2 Redirection
+
+| Symbol | Purpose |
+|---|---|
+| `>` | Write output to a file, overwriting it |
+| `>>` | Append output to a file |
+| `2>` | Redirect standard error |
+| `<` | Redirect input from a file |
+| `\|` | Send output to another command |
+
+Examples:
+
+```bash
+echo "Hello" > output.txt
+```
+
+Overwrites `output.txt`.
+
+```bash
+echo "Another line" >> output.txt
+```
+
+Appends to `output.txt`.
+
+```bash
+find / -name '*.conf' 2> errors.txt
+```
+
+Redirects error messages into `errors.txt`.
+
+```bash
+find / -name '*.conf' 2>/dev/null
+```
+
+Discards error messages.
+
+### Standard streams
+
+| Stream | File descriptor | Purpose |
+|---|---:|---|
+| stdin | 0 | Input |
+| stdout | 1 | Normal output |
+| stderr | 2 | Error output |
+
+## 6.3 `tee`
+
+`tee` displays output and saves a copy to a file.
+
+```bash
+command | tee log.txt
+```
+
+This is useful for monitoring a command while saving its output.
+
+---
+
+# 7. Text Processing Commands
+
+| Command | Purpose | Example |
+|---|---|---|
+| `tr` | Translate or delete characters | `echo "hi" \| tr 'a-z' 'A-Z'` |
+| `sed` | Find and replace text | `sed 's/cat/dog/g' file.txt` |
+| `cut` | Extract delimiter-separated fields | `cut -d"," -f1 data.csv` |
+| `awk` | Process fields/columns | `awk '{print $2}' file.txt` |
+| `sort` | Sort lines | `sort file.txt` |
+| `uniq` | Remove adjacent duplicates | `sort file.txt \| uniq` |
+| `comm` | Compare sorted files | `comm a.txt b.txt` |
+
+### `tr`
+
+Translate characters:
+
+```bash
+echo "hello" | tr 'a-z' 'A-Z'
+```
+
+Output:
+
+```text
+HELLO
+```
+
+### `sed`
+
+Replace text:
+
+```bash
+sed 's/cat/dog/g' file.txt
+```
+
+- `s` means substitute.
+- `g` means replace all matching occurrences on each line.
+
+### `cut`
+
+Extract the first CSV field:
+
+```bash
+cut -d"," -f1 data.csv
+```
+
+- `-d` specifies the delimiter.
+- `-f` specifies the field.
+
+### `awk`
+
+Extract the second field:
+
+```bash
+ps aux | awk '{print $2}'
+```
+
+`awk` is useful when processing whitespace-separated output or performing field-based operations.
+
+### `sort`
+
+Numerical sorting:
+
+```bash
+sort -n numbers.txt
+```
+
+Sort a comma-separated file using its second field:
+
+```bash
+sort -t, -k2 -n data.csv
+```
+
+### `uniq`
+
+Remove adjacent duplicates:
+
+```bash
+sort list.txt | uniq
+```
+
+Show only duplicate lines:
+
+```bash
+sort list.txt | uniq -d
+```
+
+`uniq` only detects adjacent duplicate lines, so sorting first is usually necessary.
+
+### `comm`
+
+Compare two sorted files:
+
+```bash
+comm a.txt b.txt
+```
+
+Show only lines present in file A and not in file B:
+
+```bash
+comm -23 a.txt b.txt
+```
+
+---
+
+# 8. Globs and Regular Expressions
+
+Globs and regular expressions may use similar symbols but have different purposes.
+
+| | Globs | Regular Expressions |
+|---|---|---|
+| Interpreted by | Shell | Tool such as `grep` or `sed` |
+| Used for | Filename matching | Text matching |
+| `*` | Any number of filename characters | Zero or more repetitions of the previous expression |
+| `?` | One filename character | Zero or one repetition of the previous expression |
+
+### Glob example
+
+```bash
+ls *.jpg
+```
+
+Matches filenames ending in `.jpg`.
+
+### Regex example
+
+```bash
+grep "Error.*" log.txt
+```
+
+Matches text containing `Error` followed by any characters.
+
+### Common regex symbols
+
+| Symbol | Meaning |
+|---|---|
+| `.` | Any character |
+| `^` | Beginning of line |
+| `$` | End of line |
+| `[a-z]` | Character range |
+| `[0-9]` | Digit |
+| `x*` | Zero or more `x` |
+| `x+` | One or more `x` |
+| `x?` | Zero or one `x` |
+| `(x\|y)` | x or y in extended regex |
+| `x{2,4}` | Two to four repetitions |
+
+### Basic and extended regex
+
+`grep` and `sed` normally use basic regular expressions. `-E` enables extended regular expressions.
+
+```bash
+grep '^Error: *[0-9]\+ ' log.txt
+```
+
+Basic regex version.
+
+```bash
+grep -E '^Error: *[0-9]+ ' log.txt
+```
+
+Extended regex version.
+
+In extended regex, `+`, `?`, parentheses and `|` are easier to use without backslashes.
+
+### `sed` capture groups
+
+Convert dates from `YYYY-MM-DD` to `DD.MM.YYYY`:
+
+```bash
+sed -E 's/([0-9]{4})-([0-9]{2})-([0-9]{2})/\3.\2.\1/' dates.txt
+```
+
+- `(...)` captures a group.
+- `\1`, `\2`, `\3` refer to captured groups.
+
+---
+
+# 9. Quoting and Variable Expansion
+
+Quoting controls how the shell interprets characters and variables.
+
+### Unquoted expansion
+
+```bash
+filename="my file.txt"
+rm $filename
+```
+
+Unquoted variable expansion may undergo word splitting and pathname expansion. The filename may be split into separate arguments because it contains a space.
+
+### Double quotes
+
+```bash
+rm "$filename"
+```
+
+Double quotes allow variable expansion but prevent word splitting and pathname expansion.
+
+### Single quotes
+
+```bash
+rm '$filename'
+```
+
+Single quotes prevent variable expansion. The shell treats `$filename` literally.
+
+| Expression | Variable expands? | Word splitting? |
+|---|---|---|
+| `$filename` | Yes | Yes |
+| `"$filename"` | Yes | No |
+| `'$filename'` | No | No |
+
+### Command substitution
+
+```bash
+now=$(date)
+```
+
+Runs `date` and stores its output in the variable `now`.
+
+Use:
+
+```bash
+echo "$now"
+```
+
+to display it.
+
+---
+
+# 10. JSON with `jq`
+
+`jq` is a command-line tool for querying and processing JSON.
+
+### Pretty-print JSON
+
+```bash
+jq . example.json
+```
+
+### Extract fields
+
+```bash
+jq '.items[] | {id, name}' example.json
+```
+
+### Raw output
+
+```bash
+jq -r '.items[].name' example.json
+```
+
+`-r` prints raw strings without JSON quotes.
+
+### Filter
+
+```bash
+jq '.items[] | select(.status == "failed")' example.json
+```
+
+Returns only entries whose status is `failed`.
+
+PowerShell equivalents:
+
+- `ConvertFrom-Json` — convert JSON input into objects.
+- `ConvertTo-Json` — convert objects into JSON.
+
+---
+
+# 11. Hashing and Integrity
+
+A hash is calculated from the exact bytes of a file or input.
+
+```bash
+sha256sum file.txt
+```
+
+Calculates the SHA-256 checksum of the file.
+
+### Newline example
+
+```bash
+echo "hello" | sha256sum
+```
+
+Hashes `hello` plus a newline.
+
+```bash
+echo -n "hello" | sha256sum
+```
+
+Hashes `hello` without the newline.
+
+The results are different because the input bytes are different.
+
+**Cybersecurity relevance:** Hashes can be used to check whether files have changed, compare downloaded files against published checksums, and support integrity verification.
+
+---
+
+# 12. Loops and Functions
+
+## Bash loops
+
+```bash
+for f in *.txt; do
+    mv "$f" "$f.bak"
+done
+```
+
+This renames matching `.txt` files by adding `.bak`.
+
+The loop uses the variable `f` to represent each filename.
+
+## Bash functions
+
+```bash
+greet() {
+    echo "Hello $1"
+}
+```
+
+Call it:
+
+```bash
+greet "John"
+```
+
+`$1` represents the first argument.
+
+---
+
+# 13. PowerShell
+
+PowerShell is a Windows administration shell that also supports Linux and macOS.
+
+## 13.1 Aliases
+
+| Alias | Actual command |
+|---|---|
+| `ls` | `Get-ChildItem` |
+| `cp` | `Copy-Item` |
+| `mv` | `Move-Item` |
+| `rm` | `Remove-Item` |
+| `cat` | `Get-Content` |
+
+Aliases do not necessarily support the same flags as their Unix equivalents.
+
+Example:
+
+```powershell
+ls -Force
+```
+
+Lists hidden files.
+
+## 13.2 Text vs. object pipelines
+
+### Bash
+
+Pipelines pass text:
+
+```bash
+ls | grep ".txt$"
+```
+
+The receiving command must interpret the text.
+
+### PowerShell
+
+Pipelines pass objects with properties:
+
+```powershell
+ls | Where-Object Extension -eq ".txt"
+```
+
+The command filters objects based on the `Extension` property.
+
+## 13.3 PowerShell equivalents
+
+| Bash | PowerShell |
+|---|---|
+| `tr` | String methods |
+| `sed` | `-replace` |
+| `cut` / `awk` | `Select-Object` |
+
+Examples:
+
+```powershell
+"hello".ToUpper()
+```
+
+```powershell
+"cat" -replace 'c','b'
+```
+
+```powershell
+Get-Process | Select-Object Name, Id
+```
+
+PowerShell functions use named parameters rather than Bash positional parameters such as `$1`.
+
+---
+
+# 14. Script Files
+
+Scripts store commands so they can be executed together.
+
+| Shell | Extension | Execution |
+|---|---|---|
+| Bash | `.sh` | Needs executable permission; run with `./file.sh` |
+| CMD | `.bat`, `.cmd` | Run filename |
+| PowerShell | `.ps1` | Execution policy may restrict running scripts |
+
+### Bash script example
+
+```bash
+#!/bin/bash
+
+echo "Hello World"
+```
+
+The first line is called the **shebang**. It identifies the interpreter used to execute the script.
+
+Make the script executable:
+
+```bash
+chmod +x hello.sh
+```
+
+Run:
+
+```bash
+./hello.sh
+```
+
+## Exit status
+
+```bash
+echo $?
+```
+
+Displays the exit status of the previous command.
+
+- `0` — success.
+- Non-zero — failure or another condition.
+
+### Command chaining
+
+Run the second command only if the first succeeds:
+
+```bash
+make && ./run.sh
+```
+
+Run the second command only if the first fails:
+
+```bash
+make || echo failed
+```
+
+Command substitution:
+
+```bash
+now=$(date)
+```
+
+Stores the output of a command in a variable.
+
+---
+
+# 15. Command-Line Security Vulnerabilities
+
+## 15.1 Unsafe variable expansion
+
+Vulnerable example:
+
+```bash
+rm $filename
+```
+
+Unquoted variable expansion can cause word splitting and pathname expansion.
+
+Safer form:
+
+```bash
+rm -- "$filename"
+```
+
+- Quoting keeps the filename as one argument.
+- `--` tells the command that options have ended.
+
+## 15.2 Remote script execution (`curl | bash`)
+
+Risky pattern:
+
+```bash
+curl "https://example.com/install.sh" | bash
+```
+
+This executes downloaded code immediately without reviewing it first.
+
+### Safer practices
+
+1. Download the script instead of executing it directly.
+2. Inspect its contents.
+3. Verify the source.
+4. Verify a checksum or signature if provided.
+5. Understand what the script will do.
+6. Avoid unnecessary administrator privileges.
+
+## 15.3 Shell history leaks
+
+Shells may store commands in history files such as `.bash_history`.
+
+Putting passwords directly into command arguments may expose them.
+
+Avoid entering secrets directly in commands. Use interactive prompts or appropriate secure credential mechanisms.
+
+## 15.4 PATH hijacking
+
+`PATH` controls which directories the shell searches for executable programs.
+
+If an untrusted directory is searched before a trusted directory, an attacker may place a malicious executable with the same name as a legitimate command.
+
+Prevention:
+
+- Avoid putting untrusted directories in `PATH`.
+- Do not add the current directory (`.`) to `PATH`.
+- Use trusted executable locations.
+- Be careful when executing commands in shared or untrusted directories.
+
+## 15.5 Excessive permissions (`chmod 777`)
+
+```bash
+chmod 777 script.sh
+```
+
+Grants read, write and execute permissions to everyone.
+
+Risk: Other users or compromised services may modify scripts that are later executed.
+
+Use the minimum permissions required instead.
+
+Examples:
+
+```bash
+chmod 755 script.sh
+```
+
+Owner can write; everyone can read and execute.
+
+```bash
+chmod 700 script.sh
+```
+
+Only the owner can read, write and execute.
+
+## 15.6 Running as root
+
+The Principle of Least Privilege means users and processes should have only the permissions necessary to perform their tasks.
+
+Use a standard user account and elevate privileges only when necessary.
+
+`sudo` is generally safer than continuously operating as root because privileged commands require explicit elevation and can be recorded in logs.
+
+## 15.7 Wildcard / option injection
+
+Filenames can sometimes be interpreted as command-line options when commands are executed over wildcard-expanded files.
+
+Prevention:
+
+- Use `--` where supported to end option parsing.
+- Use safe filename handling.
+- Inspect files before performing destructive operations.
+- Avoid blindly executing commands on untrusted directory contents.
+
+## 15.8 PowerShell obfuscation
+
+Attackers may use Base64 encoding to make commands harder to inspect.
+
+Base64 is encoding, not encryption. Encoded commands should not be executed unless their source and contents are understood.
+
+---
+
+# 16. Further Research and Discussion Questions
+
+These questions should be discussed and answered by group members as part of the knowledge base.
+
+### Question 1 — Wildcard injection
+
+How can wildcard injection attacks be prevented when using commands such as `rm *`?
+
+**Discussion points:**
+- How filenames can be interpreted as options.
+- Why `--` is useful.
+- Safe handling of untrusted filenames.
+- Why destructive commands should be checked before execution.
+
+### Question 2 — Supply-chain attacks
+
+Find a recent example of a supply-chain attack involving a compromised script, package or software source.
+
+**Discussion points:**
+- What was compromised?
+- How were users affected?
+- How could the compromise have been detected?
+- What steps should be taken to verify a script before executing it?
+
+### Question 3 — Least privilege and audit trails
+
+Why is using `sudo` safer than logging in directly as root?
+
+Research the concept of an **audit trail** in system logs.
+
+**Discussion points:**
+- What information is recorded?
+- How can logs help identify who performed an action?
+- Why are audit logs important during incident response?
+- What limitations exist if logs are modified or deleted?
+
+### Question 4 — PATH hijacking experiment
+
+Create a safe experiment in a local folder or virtual machine.
+
+**Discussion points:**
+- What happens when a fake executable is placed in a directory searched by `PATH`?
+- How does command lookup order work?
+- How do Linux and Windows reduce this risk?
+- Why should the current directory generally not be trusted as an executable search location?
+
+### Question 5 — Un-deletable filename
+
+Create a file named `-i`.
+
+**Discussion points:**
+- Why can a filename beginning with `-` be interpreted as an option?
+- What happens when a command receives this filename?
+- How can `--` help?
+- How can commands be written to safely handle filenames?
+
+---
+
+# 17. Terminology Glossary
+
+| Term | Definition | Example / Context | Related Concepts |
+|---|---|---|---|
+| CLI | Text-based interface for interacting with a computer | Entering commands in Bash | GUI, Shell |
+| Shell | Program that interprets commands | Bash or PowerShell | CLI, Terminal |
+| Bash | Unix shell and scripting language | Linux terminal | Zsh, Shell |
+| PowerShell | Shell and scripting environment with object pipelines | Windows administration | CMD, Objects |
+| GUI | Graphical user interface | Desktop windows and icons | CLI |
+| Headless server | Server operating without a GUI | Remote server accessed through SSH | SSH, CLI |
+| Pipe | Connects one command's output to another command's input | `ls \| grep txt` | stdin, stdout |
+| stdin | Standard input, file descriptor 0 | Input passed through a pipe | stdout, stderr |
+| stdout | Standard output, file descriptor 1 | Normal command output | Redirection |
+| stderr | Standard error, file descriptor 2 | Error messages | Redirection |
+| Redirection | Changes where input or output is sent | `command > file` | Pipe |
+| Glob | Shell pattern for matching filenames | `*.txt` | Wildcards |
+| Regex | Pattern used for matching text | `grep '^Error'` | grep, sed |
+| Word splitting | Unquoted text separated into multiple arguments by the shell | `rm $file` | Quoting |
+| Command substitution | Runs a command and substitutes its output | `$(date)` | Variables |
+| Shebang | Script line specifying interpreter | `#!/bin/bash` | Scripts |
+| Exit status | Number indicating the result of a command | `0` normally means success | `$?`, `&&` |
+| Hash | Fixed-size digest calculated from input bytes | SHA-256 checksum | Integrity |
+| PATH | Environment variable specifying executable search directories | Finding `ls` | PATH hijacking |
+| Least privilege | Giving only necessary permissions | Standard user plus limited `sudo` | Access control |
+| Audit trail | Records actions for accountability and investigation | `sudo` logs | Logging, Incident response |
+| PATH hijacking | Attacker exploits executable search order | Malicious executable in earlier directory | PATH |
+| Wildcard injection | Unexpected wildcard expansion causes unintended command behavior | Untrusted filenames | Option injection |
+| Obfuscation | Making code difficult to understand | Base64-encoded command | Malware analysis |
+| Supply-chain attack | Compromise of software, dependencies or distribution process | Tampered installer | Integrity, Trust |
+
+---
+
+# 18. Tools & Commands Compendium
+
+| Tool / Command | Purpose | Basic Example | OS |
+|---|---|---|---|
+| Bash | Shell and scripting | `bash script.sh` | Linux, macOS, WSL |
+| `ls` | List directory contents | `ls -la` | Linux, macOS, WSL |
+| `find` | Search filesystem | `find . -name '*.log'` | Linux, macOS, WSL |
+| `grep` | Search text | `grep "Error" file.txt` | Linux, macOS, WSL |
+| `sed` | Text substitution | `sed 's/old/new/g' file` | Linux, macOS, WSL |
+| `awk` | Process fields and text | `awk '{print $1}' file` | Linux, macOS, WSL |
+| `cut` | Extract delimited fields | `cut -d, -f1 file.csv` | Linux, macOS, WSL |
+| `sort` | Sort lines | `sort file.txt` | Linux, macOS, WSL |
+| `uniq` | Detect/remove adjacent duplicates | `sort file \| uniq -d` | Linux, macOS, WSL |
+| `comm` | Compare sorted files | `comm -23 a b` | Linux, macOS, WSL |
+| `tr` | Translate/delete characters | `tr 'a-z' 'A-Z'` | Linux, macOS, WSL |
+| `tee` | Display and save output | `command \| tee log.txt` | Linux, macOS, WSL |
+| `jq` | Query JSON | `jq '.items[]' data.json` | Linux, macOS, Windows |
+| `sha256sum` | Calculate SHA-256 checksum | `sha256sum file` | Linux, WSL |
+| `chmod` | Change file permissions | `chmod 755 script.sh` | Linux, Unix, WSL |
+| PowerShell | Windows administration and scripting | `Get-ChildItem` | Windows, Linux, macOS |
+| `Get-Content` | Read file in PowerShell | `Get-Content file.txt` | PowerShell |
+| `Select-Object` | Select object properties | `Get-Process \| Select-Object Name,Id` | PowerShell |
+| `Where-Object` | Filter objects | `Get-ChildItem \| Where-Object Extension -eq '.txt'` | PowerShell |
+
+---
+
+# 19. Online Resources Library
+
+| Resource | URL | Description | Relevance / Tags |
+|---|---|---|---|
+| The Linux Command Line — William Shotts | https://linuxcommand.org/tlcl.php | Free book teaching Linux command-line basics | CLI, Linux, Bash, beginner |
+| explainshell | https://explainshell.com/ | Explains command syntax and options | Commands, syntax, learning |
+| Unix Philosophy — Eric S. Raymond | http://www.catb.org/~esr/writings/taoup/html/ch01s06.html | Discusses the Unix philosophy of small tools that work together | Unix, design, pipelines |
+| OverTheWire: Bandit | https://overthewire.org/wargames/bandit/ | Beginner security wargame teaching command-line skills | Practical learning, Linux, security |
+| jq Manual | https://jqlang.org/manual/ | Documentation for querying and processing JSON | JSON, command line, data |
+| GNU Bash Reference Manual | https://www.gnu.org/software/bash/manual/bash.html | Official Bash documentation for shell behavior, quoting, pipelines, scripting and redirection | Bash, scripting, reference |
+| PowerShell Documentation | https://learn.microsoft.com/en-us/powershell/ | Official documentation for PowerShell | Windows, PowerShell, administration |
+
+---
+
+# 20. Connections to Cybersecurity
+
+The command line is an important cybersecurity tool because it is commonly used for system administration, monitoring, automation, investigation and incident response.
+
+### Monitoring and logging
+
+Commands such as `grep`, `awk`, `tail`, `sort` and `uniq` can help inspect logs, identify patterns, and investigate suspicious activity.
+
+### Integrity verification
+
+`sha256sum` can help verify whether a file has changed or whether a downloaded file matches a published checksum.
+
+### Access control
+
+`chmod` and `sudo` are relevant to permissions, privilege management and the Principle of Least Privilege.
+
+### Incident response
+
+CLI tools can be used to inspect files, processes, logs, directories and system configuration on servers, including systems without GUIs.
+
+### Secure scripting
+
+Quoting variables, validating inputs, checking exit statuses and avoiding unsafe execution patterns reduce the risk of command-line vulnerabilities.
+
+---
+
+# 21. Key Takeaways
+
+1. CLI tools can be combined using pipes and redirection.
+2. Bash pipelines pass text; PowerShell pipelines pass objects.
+3. Globs match filenames, while regular expressions match text.
+4. Quoting variables prevents unwanted word splitting and pathname expansion.
+5. Scripts allow tasks to be automated and repeated.
+6. Exit statuses help determine whether commands succeeded.
+7. Commands involving deletion, permissions or elevated privileges can be dangerous.
+8. Never blindly execute scripts downloaded from untrusted sources.
+9. Use least privilege instead of unnecessarily running commands as root.
+10. The command line is a practical tool for monitoring, administration, automation and cybersecurity investigations.
+
+---
+
+# 22. References
+
+- Schiffel, S. (2026). *T-401-ICYB — Command Line Interface*, Lecture slides, Reykjavik University, 25 November 2026.
+- William Shotts. *The Linux Command Line*. https://linuxcommand.org/tlcl.php
+- GNU Bash Reference Manual. https://www.gnu.org/software/bash/manual/bash.html
+- explainshell. https://explainshell.com/
+- Eric S. Raymond. *Basics of the Unix Philosophy*. http://www.catb.org/~esr/writings/taoup/html/ch01s06.html
+- OverTheWire: Bandit. https://overthewire.org/wargames/bandit/
+- jq Manual. https://jqlang.org/manual/
+- Microsoft PowerShell Documentation. https://learn.microsoft.com/en-us/powershell/
+
+---
+
+**Wiki maintenance note:** Group members should add their own questions, research answers, examples and corrections as they work through the lecture and labs. Contributions should be committed through the GitHub Wiki using each member's own account.

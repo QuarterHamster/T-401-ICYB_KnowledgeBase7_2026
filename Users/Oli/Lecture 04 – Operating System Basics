@@ -1,0 +1,1651 @@
+# Lecture 04 – Operating System Basics
+
+**Course:** T-401-ICYB – Introduction to Cyber Security  
+**Lecture date:** 26 November 2026  
+**Lecturer:** Stephan Schiffel
+
+---
+
+## 1. What is an Operating System?
+
+An **Operating System (OS)** is software that manages computer hardware and provides services to applications.
+
+The operating system acts as a bridge between applications and hardware, allowing programs to use resources such as the CPU, memory, storage and network devices without needing to control the hardware directly.
+
+Examples of operating systems include:
+- Linux.
+- Windows.
+- macOS.
+- Android.
+- iOS.
+
+### The Kernel
+
+The **kernel** is the core component of an operating system. It manages hardware and important system resources.
+
+The kernel is responsible for:
+- Managing CPU time.
+- Managing memory.
+- Managing processes.
+- Controlling hardware devices.
+- Managing files and storage.
+- Enforcing security and permissions.
+- Handling system calls and interrupts.
+
+The kernel normally runs in **Kernel Mode**, which provides privileged access to hardware and system resources.
+
+### User Space
+
+**User Space** is where normal applications run.
+
+Examples include:
+- Web browsers.
+- Text editors.
+- Games.
+- Terminal applications.
+- Python programs.
+
+Applications run in **User Mode**, which restricts their access to hardware and sensitive memory.
+
+| Kernel Mode | User Mode |
+|---|---|
+| Privileged execution | Restricted execution |
+| Direct access to certain hardware operations | Cannot directly perform privileged hardware operations |
+| Runs the kernel and many drivers | Runs normal applications |
+| Controls system resources | Requests resources from the OS |
+
+---
+
+## 2. System Calls and Abstraction
+
+Applications normally do not access hardware directly. Instead, they request services from the operating system through **System Calls**.
+
+A system call is an interface between a user application and the kernel.
+
+Examples of common system calls include:
+- `open()` – open a file.
+- `read()` – read data.
+- `write()` – write data.
+- `close()` – close a file.
+- `fork()` – create a process on Unix-like systems.
+- `exec()` – execute a program.
+
+### How System Calls Work
+
+When an application needs an operating system service:
+
+1. The application makes a system call.
+2. The CPU transfers control from User Mode to Kernel Mode.
+3. The kernel performs the requested operation.
+4. The result is returned to the application.
+5. The application continues running in User Mode.
+
+### Why Abstraction is Important
+
+Hardware interfaces can be complicated and different between devices.
+
+The OS provides a consistent interface so applications do not need to understand the exact hardware implementation.
+
+For example, an application can request that a file be opened without needing to understand how the disk controller works.
+
+---
+
+## 3. Resource Management
+
+Computer resources are limited. The operating system must manage them so that multiple programs can use the computer at the same time.
+
+Important resources include:
+- CPU.
+- RAM.
+- Disk storage.
+- Network connections.
+- Input and output devices.
+
+### Multiplexing
+
+Multiplexing allows multiple processes to share resources.
+
+| Type | Explanation | Example |
+|---|---|---|
+| Time multiplexing | A resource is shared over time | CPU switches between processes |
+| Space multiplexing | A resource is divided into separate areas | RAM is allocated to different processes |
+
+### Isolation
+
+**Isolation** prevents one process from interfering with another process.
+
+For example, a program should not be able to read or modify another program's private memory without permission.
+
+Isolation is an important security feature because it limits the damage that a compromised or malfunctioning application can cause.
+
+---
+
+## 4. Process Management
+
+A **process** is a program that is currently executing.
+
+### Program vs. Process
+
+| Program | Process |
+|---|---|
+| Instructions stored on disk | Program currently running |
+| Static | Active execution |
+| Does not necessarily have an active execution state | Has memory, registers and execution state |
+
+A process may contain:
+- Program instructions.
+- Process ID (PID).
+- Memory.
+- Registers.
+- Program counter.
+- Stack.
+- Scheduling information.
+
+### Context Switching
+
+A **Context Switch** occurs when the operating system switches the CPU from one process to another.
+
+The process normally involves:
+
+1. The OS pauses the current process.
+2. It saves the current CPU state.
+3. The saved state is stored in a Process Control Block (PCB).
+4. The OS loads the saved state of another process.
+5. The CPU continues executing the new process.
+
+### Process Control Block (PCB)
+
+A **Process Control Block** stores information about a process.
+
+It may contain:
+- Process ID.
+- Process state.
+- CPU registers.
+- Program counter.
+- Memory information.
+- Scheduling information.
+
+Context switching allows multiple processes to share the CPU and creates the appearance of parallel execution.
+
+---
+
+## 5. Memory Management
+
+The operating system manages memory and prevents processes from accessing memory they are not allowed to use.
+
+### Virtual Memory
+
+**Virtual Memory** provides each process with its own virtual address space.
+
+A process behaves as if it has its own private memory, even though physical RAM is shared between processes.
+
+### Virtual Memory vs. Physical Memory
+
+| Virtual Memory | Physical Memory |
+|---|---|
+| Addresses used by a process | Actual RAM locations |
+| Provides a private address space | Shared physical hardware |
+| Managed through address translation | Real memory |
+
+### Memory Management Unit (MMU)
+
+The **Memory Management Unit (MMU)** is hardware that translates virtual memory addresses into physical memory addresses.
+
+The operating system and MMU work together to enforce memory protection.
+
+### Memory Protection
+
+Memory protection helps prevent:
+- One process accessing another process's memory.
+- User applications accessing kernel memory.
+- Unauthorized modification of memory.
+- Programs accessing invalid memory locations.
+
+### Segmentation Fault
+
+A **Segmentation Fault** occurs when a program attempts to access memory that it is not permitted to access or that has no valid mapping.
+
+This is a protection mechanism that helps prevent applications from accessing invalid memory.
+
+---
+
+## 6. I/O and Interrupt Management
+
+**I/O (Input/Output)** refers to communication between the computer and devices.
+
+Examples include:
+- Reading from a disk.
+- Receiving network data.
+- Keyboard input.
+- Printing.
+- USB devices.
+
+I/O operations are often much slower than the CPU. The operating system therefore avoids making the CPU continuously wait for devices.
+
+### Interrupts
+
+An **Interrupt** is a signal that requires the CPU's attention.
+
+A simplified I/O process:
+
+1. A process requests an I/O operation.
+2. The OS places the process into a Waiting state.
+3. The CPU runs another process.
+4. The device completes its operation and sends an interrupt.
+5. The CPU executes the appropriate Interrupt Service Routine (ISR).
+6. The OS moves the original process back to the Ready state.
+
+### Important Terms
+
+| Term | Explanation |
+|---|---|
+| Interrupt | Signal that requires CPU attention |
+| ISR | Interrupt Service Routine, kernel code that handles an interrupt |
+| Waiting | Process waiting for an event |
+| Ready | Process is ready to execute when the CPU is available |
+| Busy-waiting | Continuously checking for an event instead of allowing the CPU to perform other work |
+
+Interrupts allow the CPU to work on other processes instead of wasting time waiting for slow I/O operations.
+
+---
+
+## 7. File Systems and Storage Abstraction
+
+A physical storage device contains blocks or sectors. The operating system provides a logical structure that users and applications can work with.
+
+This logical structure includes:
+- Files.
+- Directories.
+- Paths.
+- Permissions.
+- Metadata.
+
+### File System Responsibilities
+
+The operating system is responsible for:
+- Mapping filenames to storage locations.
+- Managing directories.
+- Managing file metadata.
+- Enforcing file permissions.
+- Managing timestamps.
+- Maintaining filesystem consistency.
+- Recovering from certain failures.
+
+### Metadata
+
+**Metadata** is information about a file rather than the file's actual contents.
+
+Examples include:
+- Owner.
+- Permissions.
+- File size.
+- Timestamps.
+- Storage information.
+
+### Journaling
+
+A **Journaling File System** records certain changes before applying them.
+
+This helps the filesystem recover and maintain consistency after events such as power loss or system crashes.
+
+---
+
+## 8. Protection – Ring 0 and Ring 3
+
+CPU architectures such as x86 support different privilege levels.
+
+The most commonly discussed privilege levels are:
+
+| Ring | Common Use |
+|---|---|
+| Ring 0 | Kernel Mode |
+| Ring 3 | User Mode |
+
+### Ring 0 – Kernel Mode
+
+Kernel Mode has privileged access to system resources.
+
+It can:
+- Execute privileged CPU instructions.
+- Manage memory.
+- Control hardware.
+- Manage interrupts.
+- Control system resources.
+
+### Ring 3 – User Mode
+
+User Mode is restricted.
+
+Applications:
+- Cannot execute privileged instructions.
+- Cannot directly access hardware.
+- Cannot freely access kernel memory.
+- Must request system services through the OS.
+
+### Traps
+
+If a program attempts an illegal privileged operation, the CPU raises an exception or trap.
+
+The operating system handles the violation. Depending on the situation, the process may be terminated.
+
+### Security Importance
+
+Privilege separation prevents normal applications from having unrestricted access to the entire computer.
+
+---
+
+## 9. Common Operating Systems
+
+### Unix and Linux
+
+Unix-like systems follow several common principles:
+- Small, modular tools.
+- Combining commands using pipes.
+- Treating many resources as files.
+- Using text files for system configuration.
+- Strong user and group permission systems.
+
+### Linux
+
+Linux is technically the kernel.
+
+A Linux distribution normally contains:
+
+**Linux Kernel + System Tools + Libraries + Package Manager + Applications**
+
+Examples of Linux distributions:
+- Ubuntu.
+- Debian.
+- Fedora.
+- Kali Linux.
+- Arch Linux.
+
+Linux is commonly described as a **Monolithic Kernel**. Many drivers and kernel components run in kernel space, meaning vulnerabilities in these components can potentially affect the entire system.
+
+### macOS
+
+macOS uses the Darwin operating system foundation and the XNU hybrid kernel.
+
+XNU combines components and ideas from Mach and BSD. macOS is also a certified UNIX operating system.
+
+### Windows
+
+Windows differs from Unix-like systems in several areas.
+
+| Unix/Linux | Windows |
+|---|---|
+| Configuration often uses text files | Uses the Windows Registry |
+| Paths such as `/etc/` | Paths such as `C:\Windows\` |
+| UID/GID-based permissions | Security identifiers and ACLs |
+| File descriptors | Handles and objects |
+| Text-based tools commonly used | Registry tools and PowerShell commonly used |
+
+### Windows Registry
+
+The **Windows Registry** is a centralized hierarchical database used for configuration.
+
+It stores settings for:
+- The operating system.
+- Applications.
+- Users.
+- Hardware.
+- Services.
+
+The Registry is not simply a collection of normal text files. It requires dedicated tools to query and manage.
+
+### Handles
+
+Windows uses **Handles** to represent access to resources such as files and processes.
+
+An access check generally occurs when a handle is opened or created. The operating system determines which access rights the caller receives for that handle.
+
+---
+
+## 10. Operating Systems and Security
+
+### Trusted Computing Base (TCB)
+
+The **Trusted Computing Base (TCB)** consists of the hardware, firmware and software that security depends on to enforce the system's security policy.
+
+It may include:
+- CPU privilege mechanisms.
+- Operating system kernel.
+- Authentication mechanisms.
+- Access-control systems.
+- Security-critical components.
+
+The OS acts as a gatekeeper between **Subjects** and **Objects**.
+
+| Term | Example |
+|---|---|
+| Subject | User or process |
+| Object | File, memory or device |
+| Operation | Read, write or execute |
+| Security Policy | Rules deciding whether an operation is permitted |
+
+### Complete Mediation
+
+**Complete Mediation** means access should be checked whenever a protected operation is performed.
+
+The operating system should not blindly assume that a previous access decision means all future operations are allowed.
+
+This helps prevent unauthorized access when permissions or circumstances change.
+
+---
+
+## 11. Authentication
+
+**Authentication** is the process of verifying a user's identity.
+
+### Identification vs. Verification
+
+| Identification | Verification |
+|---|---|
+| Claiming an identity | Proving the claimed identity |
+| Username | Password, biometric or security key |
+
+Examples of authentication methods:
+- Passwords.
+- Security keys.
+- Certificates.
+- Biometrics.
+- Multi-factor authentication.
+
+### Password Storage
+
+Operating systems should not store passwords in plaintext.
+
+Instead, password storage normally uses hashing.
+
+A simplified process:
+
+1. The user enters a password.
+2. The system processes the password using a password-hashing method.
+3. The resulting hash is compared with the stored password information.
+4. If verification succeeds, login is allowed.
+
+Modern password-storage methods include:
+- Argon2.
+- bcrypt.
+- scrypt.
+- PBKDF2.
+
+These are designed to make password guessing more expensive than using fast general-purpose hashes.
+
+### Hashing vs. Encryption
+
+| Hashing | Encryption |
+|---|---|
+| One-way transformation | Reversible using the correct key |
+| Used for integrity and password verification | Used for confidentiality |
+| No normal decryption process | Can be decrypted |
+
+---
+
+## 12. Access Control
+
+After a user is authenticated, the operating system determines what the user is allowed to do.
+
+### DAC – Discretionary Access Control
+
+**Discretionary Access Control (DAC)** allows the owner of an object to decide who can access it.
+
+Example:
+
+```bash
+chmod 644 document.txt
+```
+
+The file owner can normally change the permissions of their own files.
+
+### Risks of DAC
+
+Malware running as a user may be able to:
+- Access files the user can access.
+- Modify the user's files.
+- Change permissions on files owned by that user.
+
+### MAC – Mandatory Access Control
+
+**Mandatory Access Control (MAC)** uses centrally enforced security policies.
+
+Users cannot freely override the policy.
+
+Examples include:
+- SELinux.
+- AppArmor.
+
+### Example
+
+A web server may be prevented from accessing a user's home directory even if traditional filesystem permissions would otherwise allow access.
+
+| DAC | MAC |
+|---|---|
+| Owner controls permissions | System policy controls access |
+| Users can often change permissions | Users cannot freely override policy |
+| Flexible | Centrally controlled |
+| Example: `chmod` | Example: SELinux |
+
+---
+
+## 13. Principle of Least Privilege
+
+The **Principle of Least Privilege** states that a process should only have the minimum privileges necessary to perform its task.
+
+This is one of the most important principles in operating system security.
+
+### Why is Least Privilege Important?
+
+It limits the **Blast Radius** when something goes wrong.
+
+For example, if a web browser is compromised, it should not automatically have:
+- Root privileges.
+- Access to kernel memory.
+- Permission to modify system services.
+- Access to all users' private files.
+
+### Applying Least Privilege
+
+1. Run normal applications as ordinary users.
+2. Avoid unnecessary administrator privileges.
+3. Give services only the permissions they need.
+4. Restrict access to sensitive files.
+5. Review permissions regularly.
+6. Avoid granting unrestricted access to powerful programs.
+
+The goal is to reduce the damage that can occur if an application or account is compromised.
+
+---
+
+## 14. System Logs
+
+**System Logs** record events happening on a computer.
+
+They are important for:
+- Troubleshooting.
+- Monitoring.
+- Detecting suspicious activity.
+- Incident response.
+- Digital forensics.
+
+### Common Log Contents
+
+- Successful logins.
+- Failed logins.
+- `sudo` usage.
+- Application errors.
+- Service failures.
+- System crashes.
+- Security events.
+
+### Where are Logs Stored?
+
+| Operating System | Logging System |
+|---|---|
+| Linux | `/var/log/` and systemd journal |
+| macOS | Unified Logging system |
+| Windows | Windows Event Log (`.evtx`) |
+
+### Linux – journalctl
+
+`journalctl` is used to read logs from the systemd journal.
+
+#### View logs
+
+```bash
+journalctl
+```
+
+#### Logs from the current boot
+
+```bash
+journalctl -b
+```
+
+#### Logs from the previous boot
+
+```bash
+journalctl -b -1
+```
+
+#### Kernel messages
+
+```bash
+journalctl -k
+```
+
+#### Follow logs live
+
+```bash
+journalctl -f
+```
+
+#### View errors from a service
+
+```bash
+journalctl -u ssh --since "1 hour ago" -p err
+```
+
+| Option | Explanation |
+|---|---|
+| `-u ssh` | Filter by service |
+| `--since` | Start time |
+| `-p err` | Error severity and more severe events |
+| `-b` | Current boot |
+| `-b -1` | Previous boot |
+| `-k` | Kernel messages |
+| `-f` | Follow live |
+| `-g PATTERN` | Filter matching events |
+
+### macOS – Unified Log
+
+macOS has a unified logging system.
+
+```bash
+log show --last 1h
+```
+
+Shows events from the last hour.
+
+```bash
+log show --predicate 'process == "sshd"'
+```
+
+Filters events by process.
+
+```bash
+log stream
+```
+
+Follows log events live.
+
+```bash
+log collect
+```
+
+Collects log data into a bundle for investigation.
+
+### Windows – Event Log
+
+Windows stores event logs in `.evtx` files and provides Event Viewer and PowerShell for reading them.
+
+Example:
+
+```powershell
+Get-WinEvent -FilterHashtable @{
+    LogName = 'System'
+    Level = 2
+    StartTime = (Get-Date).AddHours(-1)
+}
+```
+
+This retrieves System log errors from the previous hour.
+
+### Windows Event Levels
+
+| Level | Meaning |
+|---|---|
+| 1 | Critical |
+| 2 | Error |
+| 3 | Warning |
+| 4 | Information |
+| 5 | Verbose |
+
+Other Windows logging tools:
+- `Get-WinEvent` – query event logs.
+- `wevtutil` – query, export and manage event logs.
+- Event Viewer – graphical log viewer.
+
+### Log Security
+
+Logs are evidence, but they are not automatically tamper-proof.
+
+An administrator or attacker with sufficient privileges may modify or delete local logs.
+
+Better practices include:
+1. Send logs to a separate server.
+2. Restrict log permissions.
+3. Monitor log changes.
+4. Keep logs for an appropriate period.
+5. Use centralized logging.
+6. Protect logs from unauthorized modification.
+
+Logs are important during incident response because they help investigators reconstruct what happened.
+
+---
+
+## 15. System Auditing
+
+**System Auditing** provides detailed information about security-relevant activity.
+
+Auditing may monitor:
+- System calls.
+- File access.
+- Permission changes.
+- Login attempts.
+- User activity.
+- Security-related operations.
+
+### Logging vs. Auditing
+
+| Logging | Auditing |
+|---|---|
+| Records system events | Records selected security-relevant activity |
+| Often application or service focused | Can track lower-level activity |
+| Useful for troubleshooting | Useful for accountability and investigation |
+| May record a login failure | May record detailed access attempts |
+
+### Linux Audit Framework
+
+The Linux Audit Framework can monitor system calls and filesystem-related activity.
+
+Example of monitoring changes to a file:
+
+```bash
+sudo auditctl -w /etc/shadow -p wa -k pw-change
+```
+
+| Option | Explanation |
+|---|---|
+| `-w` | Watch a path |
+| `-p wa` | Watch write and attribute changes |
+| `-k` | Add a searchable key |
+
+Audit logs are commonly stored at:
+
+```text
+/var/log/audit/audit.log
+```
+
+Tools include:
+
+```bash
+ausearch
+aureport
+```
+
+### Windows Auditing
+
+Windows allows auditing policies to be configured by event category.
+
+GUI:
+
+```text
+secpol.msc
+```
+
+Command-line tool:
+
+```text
+auditpol
+```
+
+Auditing can be configured to record:
+- Successful events.
+- Failed events.
+- Both.
+
+### macOS Auditing
+
+macOS uses the **Basic Security Module (BSM)** auditing system.
+
+| Tool | Purpose |
+|---|---|
+| `auditd` | Audit daemon |
+| `audit` | Manage or reload the audit system |
+| `auditreduce` | Filter audit records |
+| `praudit` | Convert audit records into readable output |
+
+---
+
+## 16. File Integrity Monitoring (FIM)
+
+**File Integrity Monitoring (FIM)** detects changes to important files.
+
+It can help detect:
+- Modified system binaries.
+- Unauthorized configuration changes.
+- Malware replacing system files.
+- Changes to important permissions.
+- Unexpected file deletions.
+
+### How FIM Works
+
+1. **Baseline:** Record the expected state of important files.
+2. **Monitor:** Recheck the files later.
+3. **Compare:** Compare the current state with the baseline.
+4. **Alert:** Report unexpected differences.
+
+FIM may check:
+- Hashes.
+- File sizes.
+- Permissions.
+- Ownership.
+- Timestamps.
+- File existence.
+
+### Hash-Based Integrity Checking
+
+If a file changes, its hash will usually change too.
+
+Example:
+
+```bash
+sha256sum file.txt
+```
+
+The hash from the baseline can be compared with the current hash.
+
+If the hashes differ, the contents may have changed.
+
+### Limitations
+
+A hash change does not automatically mean malware.
+
+Legitimate changes can occur because of:
+- Software updates.
+- Configuration changes.
+- Administrators.
+- Application activity.
+
+Changes must therefore be investigated.
+
+### Connection to Lab 4
+
+AIDE (Advanced Intrusion Detection Environment) is a file integrity monitoring tool.
+
+It creates a baseline database and later compares the filesystem against that baseline.
+
+The lab investigates changes such as:
+- Deleted files.
+- Modified files.
+- Permission and attribute changes.
+- Repeated changes.
+- Unexpected filesystem activity.
+
+---
+
+## 17. Common Vulnerabilities and Exploits
+
+### Buffer Overflow
+
+A **Buffer Overflow** occurs when a program writes more data into a buffer than the buffer can hold.
+
+This is a common memory-safety problem in languages such as C and C++ when bounds checking is missing or incorrect.
+
+#### The Flaw
+
+1. A program allocates a fixed-size buffer.
+2. It receives input.
+3. It fails to check the input size correctly.
+4. It writes data outside the allocated buffer.
+
+This can corrupt nearby memory.
+
+#### Potential Consequences
+
+- Program crashes.
+- Data corruption.
+- Unexpected program behaviour.
+- In some circumstances, code execution.
+- Potential privilege escalation if the vulnerable program has elevated privileges.
+
+#### Mitigations
+
+| Mitigation | Purpose |
+|---|---|
+| ASLR | Randomizes memory locations |
+| DEP/NX | Prevents execution in protected memory regions |
+| Stack Canaries | Detect certain stack corruption |
+| Bounds Checking | Prevents writes outside allocated buffers |
+| Memory-Safe Languages | Reduce common memory corruption errors |
+| Updates | Fix known software vulnerabilities |
+
+### Race Conditions
+
+A **Race Condition** occurs when a program's behaviour depends on the timing or ordering of operations.
+
+#### TOCTOU – Time-of-Check to Time-of-Use
+
+TOCTOU is a type of race condition.
+
+It happens when a program checks something and then uses it later, but the relevant resource changes between the check and the use.
+
+A simplified example:
+
+1. A program checks that a file is safe to access.
+2. The file or its path changes between the check and use.
+3. The program uses the changed resource without performing the necessary security check again.
+
+This may cause the program to access an unintended resource.
+
+#### Mitigations
+
+- Avoid separate check-then-use operations when possible.
+- Use secure filesystem APIs.
+- Use file descriptors rather than repeatedly resolving potentially unsafe paths.
+- Validate operations atomically.
+- Avoid unsafe temporary-file handling.
+- Use restrictive permissions.
+
+### Command Injection
+
+**Command Injection** occurs when an application uses user input in a command in a way that allows the user to influence the command's execution.
+
+#### The Flaw
+
+An application expects input to represent only a filename or another value.
+
+However, if the input is passed unsafely to a shell, special shell syntax may be interpreted as additional commands.
+
+#### Potential Consequences
+
+- Unauthorized commands execute.
+- Files may be accessed or modified.
+- Sensitive information may be exposed.
+- The application may be compromised.
+
+#### Prevention
+
+1. Avoid invoking a shell when possible.
+2. Use APIs that accept arguments separately.
+3. Validate input according to the expected format.
+4. Do not rely only on filtering special characters.
+5. Use least privilege for the application.
+6. Avoid unsafe command construction.
+
+This is connected to the CLI lecture because shell quoting, command substitution, input validation and unsafe variable expansion can create command-injection vulnerabilities.
+
+### Privilege Escalation
+
+**Privilege Escalation** occurs when an attacker obtains privileges beyond those initially available.
+
+#### Vertical Privilege Escalation
+
+Moving from a low-privilege account to a higher-privilege account, such as root or Administrator.
+
+#### Common Causes
+
+- Incorrect permissions.
+- Excessive `sudo` permissions.
+- Vulnerable privileged applications.
+- SUID programs with bugs.
+- Kernel vulnerabilities.
+- Misconfigured services.
+- Writable scripts executed by privileged users.
+
+#### Two Major Categories
+
+| Category | Explanation |
+|---|---|
+| Excessive permissions | The user is allowed to perform more than necessary |
+| Vulnerability | A bug allows privileges to be obtained unexpectedly |
+
+#### Defense
+
+- Least privilege.
+- Regular updates.
+- Review `sudo` permissions.
+- Audit SUID/SGID files.
+- Secure service configurations.
+- Remove unnecessary privileged programs.
+
+### Rootkits
+
+A **Rootkit** is malware designed to hide its presence or maintain privileged access.
+
+It may attempt to hide:
+- Files.
+- Processes.
+- Network connections.
+- User accounts.
+- System modifications.
+
+Some rootkits operate at user level, while others may operate at kernel level.
+
+#### How Rootkits Hide
+
+A compromised system may manipulate the information returned by system tools.
+
+For example, normal tools rely on information provided by the operating system. If the OS itself has been compromised, that information may be manipulated.
+
+This means a compromised system cannot always be trusted to report its own state accurately.
+
+#### Detection and Defense
+
+- File integrity monitoring.
+- Trusted offline tools.
+- Centralized logging.
+- Secure Boot.
+- Endpoint security.
+- Kernel and driver updates.
+- Reinstallation from trusted media when compromise is severe.
+
+### Zero-Day Vulnerabilities
+
+A **Zero-Day Vulnerability** is a software flaw unknown to the vendor or for which an effective fix is not yet available to defenders.
+
+The term refers to defenders having zero days of preparation or remediation before the vulnerability is exploited.
+
+#### Why Zero-Days are Dangerous
+
+Normal patching may not be possible immediately.
+
+#### Defense in Depth
+
+Since a patch may not exist yet, multiple defenses should be used:
+- Firewall.
+- Least privilege.
+- Network segmentation.
+- Application isolation.
+- Monitoring.
+- Access controls.
+- Backups.
+- Incident-response procedures.
+
+The goal is to reduce the likelihood of exploitation and limit the damage.
+
+---
+
+## 18. Sysadmin Commands – Privileges and Permissions
+
+System administrators use commands to manage permissions, users and privileged access.
+
+| Task | Linux | Windows |
+|---|---|---|
+| Run command with elevated privileges | `sudo command` | Run Terminal as Administrator |
+| View current user | `whoami` | `whoami` |
+| View identity and groups | `id` | `whoami /groups` |
+| View permissions | `ls -l file` | `Get-Acl file` |
+| Change permissions | `chmod` | `icacls` |
+| Change ownership | `chown` | `takeown` / `Set-Acl` |
+| Change password | `passwd` | Administrative user-management tools |
+
+### Linux Permissions
+
+Linux permissions use three categories:
+
+| Category | Meaning |
+|---|---|
+| User | Owner |
+| Group | Group members |
+| Others | Everyone else |
+
+Three basic permission types:
+
+| Permission | Meaning | File | Directory |
+|---|---|---|---|
+| `r` | Read | Read contents | List contents |
+| `w` | Write | Modify contents | Create/delete entries, subject to other controls |
+| `x` | Execute | Run program/script | Traverse/access entries |
+
+### Example: ls -l
+
+```bash
+ls -l file.txt
+```
+
+Example output:
+
+```text
+-rw-r--r-- 1 user group 100 Nov 26 file.txt
+```
+
+The permissions can be divided into:
+
+```text
+rw-  r--  r--
+│    │    │
+│    │    └── Others
+│    └─────── Group
+└──────────── Owner
+```
+
+The owner can read and write. The group and others can read.
+
+### Permission Numbers
+
+| Permission | Value |
+|---|---:|
+| Read (`r`) | 4 |
+| Write (`w`) | 2 |
+| Execute (`x`) | 1 |
+
+Add the values together for each permission category.
+
+| Number | Permissions |
+|---:|---|
+| 7 | `rwx` |
+| 6 | `rw-` |
+| 5 | `r-x` |
+| 4 | `r--` |
+| 3 | `-wx` |
+| 2 | `-w-` |
+| 1 | `--x` |
+| 0 | `---` |
+
+### Example: chmod 755
+
+```bash
+chmod 755 file
+```
+
+Calculation:
+
+- 7 = 4 + 2 + 1 = `rwx`
+- 5 = 4 + 1 = `r-x`
+- 5 = 4 + 1 = `r-x`
+
+Therefore:
+
+```text
+755 = rwxr-xr-x
+```
+
+### Common Permissions
+
+| Permission | Meaning |
+|---|---|
+| `644` | Owner read/write; others read |
+| `600` | Owner read/write only |
+| `700` | Owner full access |
+| `755` | Owner full access; others read/execute |
+| `750` | Owner full; group read/execute |
+| `777` | Everyone read/write/execute |
+
+### Security Warning – 777
+
+Giving everyone full permissions can allow other users or processes to:
+- Modify files.
+- Replace scripts.
+- Delete files.
+- Execute unauthorized programs.
+
+Avoid excessive permissions unless there is a specific and justified need.
+
+---
+
+## 19. Windows Permissions – ACLs
+
+Windows uses **Access Control Lists (ACLs)**.
+
+ACLs specify what access different users and groups have to an object.
+
+Examples include:
+- Read.
+- Write.
+- Modify.
+- Read & Execute.
+- Full Control.
+
+Windows ACLs allow more detailed permissions than the simpler Unix permission model.
+
+### Useful Commands
+
+View permissions:
+
+```powershell
+Get-Acl .\file.txt
+```
+
+View permissions using `icacls`:
+
+```powershell
+icacls file.txt
+```
+
+Take ownership:
+
+```powershell
+takeown /f file.txt
+```
+
+Ownership and ACL modifications can affect security and should be performed only when needed.
+
+---
+
+## 20. Advanced Linux Permissions – SUID
+
+**SUID (Set User ID)** is a special permission that can cause an executable to run with the effective user ID of the file's owner.
+
+### Use Case
+
+The `passwd` utility needs to update protected password information.
+
+Normal users cannot directly write to protected password files. The SUID permission allows the utility to perform the necessary operation using the required privileges.
+
+### How SUID Works
+
+1. A user starts an SUID program.
+2. The process receives the program owner's effective UID.
+3. The program performs the operation using those privileges.
+4. The program exits.
+
+### Identify SUID Files
+
+Administrators can search for SUID files and investigate whether they are expected:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+This searches for regular files with the SUID bit set.
+
+### Why SUID is Dangerous
+
+If a privileged SUID program:
+- Has a vulnerability.
+- Is misconfigured.
+- Executes unsafe commands.
+- Allows unintended behaviour.
+
+It may become a route to privilege escalation.
+
+### Defensive Practices
+
+1. Keep SUID files to a minimum.
+2. Review unexpected SUID files.
+3. Ensure programs are owned by the correct users.
+4. Patch vulnerable software.
+5. Avoid unnecessary SUID settings.
+
+---
+
+## 21. Sudo and Delegation
+
+`sudo` allows administrators to delegate selected commands to other users without granting full administrator access.
+
+### View Allowed Commands
+
+```bash
+sudo -l
+```
+
+This lists commands that the current user is allowed to execute through the sudo policy.
+
+### Why Command Delegation Can Be Dangerous
+
+A permission rule may allow a user to run a particular program as root.
+
+However, the program may have additional functionality beyond the intended administrative task.
+
+Some programs may be able to:
+- Start other programs.
+- Open files.
+- Run scripts.
+- Execute commands.
+- Modify system configuration.
+
+Allowing someone to execute a program as root may therefore give them more access than the administrator originally intended.
+
+### GTFOBins
+
+GTFOBins is a catalog documenting how certain Unix binaries can be abused in misconfigured environments.
+
+It is useful for security professionals when reviewing:
+- `sudo` permissions.
+- SUID binaries.
+- Privileged programs.
+- System configurations.
+
+The key lesson is to evaluate what a permitted binary can actually do, not just its name.
+
+### Safer Delegation
+
+Instead of granting unrestricted access to a general-purpose program:
+1. Grant only the exact required task.
+2. Use a dedicated script with fixed and validated arguments.
+3. Restrict who can modify the script.
+4. Ensure scripts and parent directories are not writable by unauthorized users.
+5. Log administrative actions.
+6. Review permissions regularly.
+
+---
+
+## 22. Process and Service Management
+
+Operating systems provide tools for managing processes and services.
+
+### Linux Commands
+
+| Task | Command |
+|---|---|
+| List processes | `ps aux` |
+| Interactive process monitor | `top` |
+| Enhanced process monitor | `htop` |
+| Find a process | `pgrep name` |
+| Terminate a process | `kill PID` |
+| Force termination | `kill -9 PID` |
+| Start service | `sudo systemctl start service` |
+| Stop service | `sudo systemctl stop service` |
+| Check service status | `systemctl status service` |
+| Enable service at boot | `sudo systemctl enable service` |
+
+### ps aux
+
+```bash
+ps aux
+```
+
+Shows a snapshot of running processes.
+
+Useful columns include:
+- USER – process owner.
+- PID – process ID.
+- %CPU – CPU usage.
+- %MEM – memory usage.
+- COMMAND – command being executed.
+
+### top
+
+```bash
+top
+```
+
+Displays a live view of processes and system resource usage.
+
+### kill
+
+```bash
+kill PID
+```
+
+Requests that a process terminate.
+
+```bash
+kill -9 PID
+```
+
+Sends SIGKILL, which forces termination and cannot be caught or ignored by the target process.
+
+Force termination should only be used when necessary because normal termination gives a process a chance to clean up.
+
+### Windows / PowerShell
+
+| Task | Command |
+|---|---|
+| List processes | `Get-Process` |
+| Stop process | `Stop-Process -Id PID` |
+| Start service | `Start-Service name` |
+| Stop service | `Stop-Service name` |
+| View service | `Get-Service` |
+| Open Task Manager | `taskmgr` |
+
+Examples:
+
+```powershell
+Get-Process
+```
+
+Lists running processes.
+
+```powershell
+Get-Service
+```
+
+Lists services.
+
+```powershell
+Get-Service sshd
+```
+
+Views the SSH service, if installed.
+
+---
+
+## 23. Scheduling Jobs – cron
+
+**cron** is a Linux/Unix job scheduler.
+
+It allows commands to run automatically according to a schedule.
+
+Examples include:
+- Daily backups.
+- Periodic monitoring.
+- Cleanup tasks.
+- Maintenance scripts.
+
+### User Crontab
+
+```bash
+crontab -e
+```
+
+Edits the user's scheduled jobs.
+
+```bash
+crontab -l
+```
+
+Lists the user's scheduled jobs.
+
+User crontab jobs normally run with that user's privileges.
+
+### System Cron
+
+Common system locations include:
+
+```text
+/etc/crontab
+/etc/cron.d/
+/etc/cron.daily/
+/etc/cron.hourly/
+```
+
+System cron configuration can specify which user executes a job.
+
+### Cron Schedule Format
+
+Cron uses five schedule fields:
+
+| Field | Range |
+|---|---|
+| Minute | 0–59 |
+| Hour | 0–23 |
+| Day of month | 1–31 |
+| Month | 1–12 |
+| Day of week | 0–7 |
+
+Example:
+
+```text
+30 3 * * *
+```
+
+This means every day at 03:30.
+
+The `*` symbol means every applicable value.
+
+### Security Risks of Scheduled Jobs
+
+A scheduled task may run with elevated privileges.
+
+If an administrator schedules a script as root, but an unauthorized user can modify that script, the user may influence code executed with root privileges.
+
+### Security Recommendations
+
+1. Check script ownership.
+2. Check script permissions.
+3. Check parent-directory permissions.
+4. Avoid writable locations for privileged scripts.
+5. Review scheduled jobs regularly.
+6. Keep scripts simple and predictable.
+7. Ensure logs exist for important jobs.
+
+### Windows Scheduling
+
+Windows uses **Task Scheduler**.
+
+Command-line tool:
+
+```powershell
+schtasks
+```
+
+Scheduled tasks can run programs based on:
+- Time.
+- Login.
+- System startup.
+- Events.
+
+---
+
+## 24. DMA – Direct Memory Access
+
+**DMA (Direct Memory Access)** allows certain hardware devices to transfer data directly to or from system memory without the CPU handling every individual transfer.
+
+DMA improves performance, but it also creates security concerns because a DMA-capable device may potentially access memory outside the normal CPU-mediated access-control path.
+
+### Why DMA Attacks are Dangerous
+
+Normal OS permissions primarily control CPU-mediated access.
+
+A DMA-capable device may potentially access physical memory through the hardware I/O path. Without suitable hardware and OS protections, this access may not be subject to the same user-account and file-permission checks.
+
+Therefore:
+- User accounts do not by themselves prevent DMA access.
+- Filesystem permissions do not directly restrict DMA access to physical memory.
+- Disk encryption does not necessarily protect data that is already accessible in RAM.
+
+### IOMMU
+
+An **IOMMU (Input-Output Memory Management Unit)** provides address translation and isolation for devices that perform DMA.
+
+It can restrict devices to memory regions they are allowed to access.
+
+### Defense Against DMA Attacks
+
+- Enable Kernel DMA Protection when supported.
+- Use IOMMU-based protections.
+- Enable appropriate firmware security settings.
+- Restrict or disable unused DMA-capable interfaces.
+- Use physical security.
+- Avoid leaving devices unattended while powered on.
+- Keep firmware and OS updated.
+- Use hardware with stronger security features.
+
+### Thunderspy
+
+Thunderspy was research into weaknesses in Thunderbolt security, demonstrating that physical access and vulnerable device-security mechanisms can create serious risks.
+
+The research highlighted why DMA protections and hardware/firmware security matter.
+
+Spycheck was developed to help users assess their systems and provide protection recommendations.
+
+---
+
+## 25. Further Studies
+
+### Privileged Find Access
+
+A group needs to search `/var/log` as root, so the administrator grants members of the group permission to run `find` as root without a password.
+
+#### What does this give members beyond the intended job?
+
+`find` is a general-purpose filesystem tool, not simply a tool for searching log files.
+
+If users can run a general-purpose program with root privileges, its additional functionality may provide access beyond the intended task.
+
+The security problem is that the administrator delegates permission to run a program, but the program's full functionality may exceed the intended permission.
+
+#### What would you grant instead?
+
+Instead of giving unrestricted access to a general-purpose privileged program:
+- Provide a dedicated script that searches only the required log directory.
+- Use fixed, validated arguments.
+- Give read-only access to the required logs where possible.
+- Use a restricted service or role designed for log searching.
+
+#### Does the job need sudo at all?
+
+Not necessarily.
+
+If the task only requires reading logs, possible solutions include:
+- Adding users to an appropriate read-only group.
+- Using ACLs to grant read access to a specific directory.
+- Providing a log collection system with appropriate permissions.
+- Creating a restricted administrative task.
+
+If users only need to read logs, giving root execution privileges may be unnecessarily broad.
+
+### SUID Mitigations
+
+SUID is not automatically a vulnerability. The risk comes from unnecessary SUID permissions or vulnerable privileged programs.
+
+Mitigations include:
+1. Remove unnecessary SUID permissions.
+2. Keep SUID programs updated.
+3. Use only trusted executables.
+4. Audit SUID files regularly.
+5. Avoid programs with unsafe command execution or file access behaviour.
+6. Apply least privilege.
+7. Use additional security controls such as SELinux or AppArmor where appropriate.
+
+### DMA Research Questions
+
+- How can a DMA-capable device potentially access memory?
+- Why might normal user permissions not prevent DMA access?
+- Why is data in RAM different from encrypted data stored on disk?
+- What is the role of the IOMMU?
+- What hardware and firmware protections can reduce DMA risks?
+- What is Thunderspy?
+- What does Spycheck investigate?
+
+---
+
+## 26. Connection to Cyber Security Labs
+
+This lecture connects directly to practical cybersecurity labs.
+
+### Lab 3 – Scavenger Hunting
+
+The CLI and filesystem topics are useful for:
+- Navigating directories.
+- Finding files.
+- Reading file contents.
+- Searching paths.
+- Understanding permissions.
+- Working efficiently through a filesystem.
+
+### Lab 4 – Monitoring, Logging and Reporting
+
+The operating-system security topics are useful for:
+- Understanding file integrity monitoring.
+- Creating and comparing baselines.
+- Detecting file modifications.
+- Detecting file deletions.
+- Detecting permission and attribute changes.
+- Understanding why unexpected filesystem changes matter.
+
+AIDE (Advanced Intrusion Detection Environment) is a File Integrity Monitoring tool that creates a baseline database and later compares the filesystem against that baseline.
+
+### Connection Between the Topics
+
+| Lecture Topic | Practical Application |
+|---|---|
+| File Systems | Explore and understand the lab filesystem |
+| File Permissions | Understand access and modification rights |
+| Hashes | Check file integrity |
+| Logs | Investigate system activity |
+| Auditing | Monitor actions and changes |
+| Least Privilege | Avoid unnecessary administrator access |
+| Processes | Identify programs running on the system |
+| System Calls | Understand how programs interact with the OS |
+| FIM | Detect unexpected changes |
+| Kernel/User Mode | Understand system privilege boundaries |
+
+---
+
+## 27. Key Takeaways
+
+- The **kernel** manages hardware and critical system resources.
+- Applications normally run in **User Mode**, while the kernel runs in **Kernel Mode**.
+- **System Calls** allow applications to request OS services.
+- **Virtual Memory** and process isolation prevent applications from freely accessing each other's memory.
+- **Authentication** verifies who you are; **Authorization** determines what you can do.
+- **Least Privilege** limits damage when a program is compromised.
+- **Logs and Auditing** help reconstruct activity and investigate incidents.
+- **File Integrity Monitoring** detects unexpected file changes.
+- **SUID and excessive sudo permissions** can create privilege-escalation risks.
+- **DMA attacks** demonstrate that security also depends on hardware, firmware and physical access protections.
+- Operating system security requires multiple layers of protection rather than relying on one mechanism.

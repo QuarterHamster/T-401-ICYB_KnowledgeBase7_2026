@@ -1,0 +1,155 @@
+Types of cyberattacks.
+Non exhaustive
+Many attacks may overlap with each other.
+    ex:
+        The dropper might be a worm which utilizes info stealers to propigate itself
+        But the payload utilizes a rootkit which enrolls the machine in a botnet.
+
+
+Malware:
+    
+    Worm:
+        Malware is able to replicate itself at each infection
+        spreading across a network through exploitation
+        Forwarding itself through communication apps (email, discord, etc...)
+
+        Examples:
+            Creeper 
+            Morris worm 
+            Melissa
+            Stuxnet (Replicated itself onto USB drives)
+            Mr beast discord giveaway / casino infostealers (Steals discord session tokens using your account to spread the malware to your contacts)
+
+
+    Trojan:
+        Malware which disguises itself or packages itself with legitimate software.
+
+        Examples:
+            ?
+
+    Ransomware:
+        Encrypts data on a machine demanding payment from the user to decrypt the data again.
+        Almost always takes payment through cryptocurrency
+        Extreme rise in prevelence in recent years.
+
+        Examples:
+            Wannacry
+    
+    Rootkits:
+        Malware that operates with high privileges (root / kernel mode)
+        Typically used to conceal the malware from the user (hiding it from logs and system utilities task manager / ps)
+        Can also be used to provide persistence beyond the capabilities of anything else.
+        Can sit with elevated privileges in user mode, in kernel mode, on hypervisors  or even on firmware.
+        A rootkit sitting on firmware can persist beyond a full fresh operating system install requiring specialized software to detect and remove.
+        
+        Examples:
+            Stuxnet (Used kernel drivers signed with stolen keys)
+            Pegasus (Sat outside the IOS / android sandbox disabling security measures)
+
+    Botnets:
+        Malware which infects an internet connected devices and makes it execute commands recieved from a command & control servers.
+        Most often used to launch large DDos attacks, mine cryptocurrency, or launch spam campaigns.
+
+        Examples:
+            Mirai (Infected 100k+ IOT devices with default passwords to launch ddos attacks)
+    
+    Infostealers:
+        Malware which seeks out important credentials on an infected machine (browser session tokens, private keys, crypto wallets)
+
+    Spyware:
+        Malware whose main purpose is to spy on the victim.
+        
+        Examples:
+            Pegasus
+    
+    Adware:
+        Malware which injects or replaces ads in the victims browser or desktop environment.
+        Generates revenue with each view for the attacker.
+
+    Potentially unwanted Programs (PUPs):
+        Typically not malicious but rather software which the user might have installed accidentally or not know they have installed.
+        Often bundled in installation wizards for other software or comes pre-installed on pre built computers or laptops.
+        Very commonly adware.
+
+    Keyloggers:
+        Malware that listens to user input and relays it back to the attacker to steal credentials or monitor the user.
+
+
+
+
+
+Social engineering / Human surface:
+    Phishing:
+        Fake websites or messages which trick the user into giving up credentials or allowing access thinking they come from legitimate sources.
+
+        Example:
+            Emails asking users to verify account information due to unusual activity or something to cause strees and a rush to act.
+            Text message from pósturinn saying an incoming package requires payment before it can be delivered (one which the user never ordered)
+            Typosquatted domains which prompt the user to log in.
+
+    Spearphising:
+        Highly targeted phishing attacks.
+        Often use leaked or publicly available information about targets.
+
+    Typosquatting:
+        Hosting a website under a domain someone might accidentally enter trying to open some other website.
+        Typically push you to log in and steal your credentials.
+        Also target package managers. (pip, NPM, apt, winget etc...)
+
+        Example:
+            gogle.com
+            amzaon.com
+
+    Slopsquatting:
+        (Probably no relevence to the course but a fun one)
+        Attackers poison LLM models by writing articles, posts about how good library X (created by the attackers) is at solving some problem.
+        Attackers then infect library X with malware, often still providing the functionality by wrapping some other functionality.
+
+        LLMs will then sugest this library to users, or even install it themselves when acting as agents.
+
+        This can also be the other way around, attackers find non existing libraries LLMs keep pushing
+        (often confusing programming languages i.e. telling rust users to install networkx (python))
+
+    Wrench attack:
+       (Also probably not in the course but I just want to share my favorite XKCD)
+       https://xkcd.com/538/ 
+       Threatening physical violence to obtain secrets.
+       Typically aimed at cryptocurrency holders.
+
+       
+
+Other definitions: (or stuff i haven't categorized)
+    
+    0-day:
+        A vulnurability or exploit which has not been revealed to the vendor.
+        The golden grail of vulnurabilities. The nukes of cyber warfare.
+        Vendors have 0 days to patch them.
+        No one knows about a 0 day so no one knows to watch out for them or patch them.
+        But once released it's a race to exploit it as much as possible before people catch on and patch them.
+
+
+   
+    Arbitrary / Remote code execute (ACE / RCE):
+        An exploit which can be used to execute arbitrary code on some machine dictated by the attacker.
+        Often through overflows, and use after frees in C family applications.
+        Or unchecked / improrperly sandboxed evals in interpreted languages.
+
+        ACE means the user already has some access to the machine.
+        RCE is one which lets the attacker execute the code on a remote machine. (Log4j)
+
+    Privilege Escelation:
+        An exploit or oversight which lets some regular user execute code or interact with the system with elevated permissions they should not have access to.
+
+
+    Backdor:
+        An exploit or vulnurability purposely left in a system by a malicious actor.
+
+        Example:
+            xz backdoor (Backdoor in the xz library which is a dependency in OpenSSH)
+
+    Supply chain attack:
+        Malware or a backdoor placed in some dependency library for a large project or many different ones.
+        This both lets the attacker target multiple projects leading to a wider spread. 
+        But also helps evade detection as some small dependency library is less audited than some large project.
+
+
